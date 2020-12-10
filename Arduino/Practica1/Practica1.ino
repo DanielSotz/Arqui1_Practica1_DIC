@@ -1,5 +1,6 @@
 #include <LedControl.h>
 #include "mensaje_matriz.h"
+#include <LiquidCrystal.h>
 
 #include "LedControl.h"
 //definicion de filas
@@ -48,6 +49,29 @@ int contador_start = 0;
 bool juego = false;
 int jugador = 0;
 
+int rs = 23, en = 22, d4 = 16, d5 = 17, d6 = 18, d7 = 19;
+LiquidCrystal lcd (rs, en, d4, d5, d6, d7);
+
+byte heart[8] = {
+B01010,
+B11111,
+B11111,
+B01110,
+B00100,
+B00000,
+B00000,
+};
+
+byte carita[8] = {
+B11111,
+B10101,
+B11111,
+B11111,
+B10101,
+B10001,
+B11111,
+};
+
 void setup() {
   // INICIALIZACIÓN DEL DRIVER
   lc.shutdown(0, false);
@@ -69,6 +93,11 @@ void setup() {
     pinMode(col[i], OUTPUT);
   }
   Serial.println("Prueba Arduino");
+
+  lcd.createChar(1, heart);
+  lcd.createChar(2, carita);
+  lcd.begin(16,2);
+  
 }
 
 void Dibujarletras() {
@@ -127,18 +156,29 @@ void allOff() {
   }
 }
 
+String reloj()
+ {
+ int n = millis() / 1000 ;  // Se convierte a segundos
+ int segundos = n % 60 ;
+ int minutos = n / 60 ;
+
+String S = String(minutos) + ":" + String(segundos);
+ return (S);
+ }
+
 
 void loop() {
   // put your main code here, to run repeatedly:
+  
   pot = analogRead(A15) / 145;
   Dibujarletras();
+    
   Serial.println(contador_start);
   while (digitalRead(btnStart) == HIGH) {
     contador_start++;
     if (contador_start >= 60) {
       contador_start = 0;
-      juego = true;
-      
+      juego = true;     
     }
     delay(50);
   }
@@ -155,4 +195,17 @@ void loop() {
   if (digitalRead(MsgIzq) == HIGH) {
     dir = 1;
   }
+
+  lcd.setCursor(3,1);
+  lcd.write ("FIGURA-1");
+  
+  lcd.setCursor(11,1);
+  lcd.write (byte(1));
+
+  lcd.setCursor(12,1);
+  lcd.write (byte(2));
+  
+  lcd.setCursor(0,0);
+  String r = reloj ();
+  lcd.print (r);  
 }
